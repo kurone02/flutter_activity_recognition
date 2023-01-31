@@ -46,7 +46,7 @@ class ActivityRecognitionManager: SharedPreferences.OnSharedPreferenceChangeList
 
 	fun stopService(context: Context) {
 		unregisterSharedPreferenceChangeListener(context)
-		removeActivityUpdates()
+		removeActivityTransitionUpdates()
 
 		this.errorCallback = null
 		this.successCallback = null
