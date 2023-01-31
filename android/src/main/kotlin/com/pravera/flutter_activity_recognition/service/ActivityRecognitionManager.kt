@@ -2,9 +2,9 @@ package com.pravera.flutter_activity_recognition.service
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent
-import android.context.Context
-import android.context.Intent
-import android.context.SharedPreferences
+import android.content.Context
+import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Build
 import android.util.Log
 import com.google.android.gms.location.*
@@ -129,6 +129,16 @@ class ActivityRecognitionManager: SharedPreferences.OnSharedPreferenceChangeList
 		   .build())
 		return ActivityTransitionRequest(transitions)
 	  }
+
+	  @SuppressLint("MissingPermission")
+	private fun removeActivityTransitionUpdates() {
+		val task = serviceClient?.removeActivityTransitionUpdates(pendingIntent!!)
+		task?.addOnSuccessListener { successCallback?.invoke() }
+		task?.addOnFailureListener { errorCallback?.invoke(ErrorCodes.ACTIVITY_UPDATES_REMOVE_FAILED) }
+
+		pendingIntent = null
+		serviceClient = null
+	}
 
 	  /*
 	  END OF MODIFICATION: Using ActivityTransitionUpdates
