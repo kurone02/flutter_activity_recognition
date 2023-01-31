@@ -2,9 +2,9 @@ package com.pravera.flutter_activity_recognition.service
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
+import android.context.Context
+import android.context.Intent
+import android.context.SharedPreferences
 import android.os.Build
 import android.util.Log
 import com.google.android.gms.location.*
@@ -39,7 +39,7 @@ class ActivityRecognitionManager: SharedPreferences.OnSharedPreferenceChangeList
 		registerSharedPreferenceChangeListener(context)
 
 		// ---------- BEGIN OF Changing to ActivityTransitionUpdates ----------
-		requestActivityTransitionUpdates(content)
+		requestActivityTransitionUpdates(context)
 		// requestActivityUpdates(context)
 		// ---------- END OF Changing to ActivityTransitionUpdates ----------
 	}
@@ -75,7 +75,7 @@ class ActivityRecognitionManager: SharedPreferences.OnSharedPreferenceChangeList
 	*/
 
 	@SuppressLint("MissingPermission")
-	private fun requestActivityTransitionUpdates(content: Context) {
+	private fun requestActivityTransitionUpdates(context: Context) {
 		val request: ActivityTransitionRequest = buildTransitionRequest()
 		pendingIntent = getPendingIntentForService(context)
 		serviceClient = ActivityRecognition.getClient(context)
@@ -86,48 +86,48 @@ class ActivityRecognitionManager: SharedPreferences.OnSharedPreferenceChangeList
 
 	// Example Transition Request....
     private fun buildTransitionRequest(): ActivityTransitionRequest {
-		List transitions = new ArrayList<>();
-		transitions.add(new ActivityTransition.Builder()
+		var transitions: MutableList<ActivityTransition> = ArrayList()
+		transitions.add(ActivityTransition.Builder()
 		   .setActivityType(DetectedActivity.IN_VEHICLE)
 		   .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
-		   .build());
-		transitions.add(new ActivityTransition.Builder()
+		   .build())
+		transitions.add(ActivityTransition.Builder()
 		   .setActivityType(DetectedActivity.IN_VEHICLE)
 		   .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-		   .build());
-		transitions.add(new ActivityTransition.Builder()
+		   .build())
+		transitions.add(ActivityTransition.Builder()
 		   .setActivityType(DetectedActivity.ON_BICYCLE)
 		   .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
-		   .build());
-		transitions.add(new ActivityTransition.Builder()
+		   .build())
+		transitions.add(ActivityTransition.Builder()
 		   .setActivityType(DetectedActivity.ON_BICYCLE)
 		   .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-		   .build());
-		transitions.add(new ActivityTransition.Builder()
+		   .build())
+		transitions.add(ActivityTransition.Builder()
 		   .setActivityType(DetectedActivity.WALKING)
 		   .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
-		   .build());
-		transitions.add(new ActivityTransition.Builder()
+		   .build())
+		transitions.add(ActivityTransition.Builder()
 		   .setActivityType(DetectedActivity.WALKING)
 		   .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-		   .build());
-		   transitions.add(new ActivityTransition.Builder()
+		   .build())
+		   transitions.add(ActivityTransition.Builder()
 		   .setActivityType(DetectedActivity.RUNNING)
 		   .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
-		   .build());
-		transitions.add(new ActivityTransition.Builder()
+		   .build())
+		transitions.add(ActivityTransition.Builder()
 		   .setActivityType(DetectedActivity.RUNNING)
 		   .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-		   .build());
-		transitions.add(new ActivityTransition.Builder()
+		   .build())
+		transitions.add(ActivityTransition.Builder()
 		   .setActivityType(DetectedActivity.STILL)
 		   .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
-		   .build());
-		transitions.add(new ActivityTransition.Builder()
+		   .build())
+		transitions.add(ActivityTransition.Builder()
 		   .setActivityType(DetectedActivity.STILL)
 		   .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-		   .build());
-		return ActivityTransitionRequest(transitions);
+		   .build())
+		return ActivityTransitionRequest(transitions)
 	  }
 
 	  /*
