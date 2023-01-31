@@ -37,7 +37,11 @@ class ActivityRecognitionManager: SharedPreferences.OnSharedPreferenceChangeList
 		this.updatesCallback = updatesListener
 
 		registerSharedPreferenceChangeListener(context)
-		requestActivityUpdates(context)
+
+		// ---------- BEGIN OF Changing to ActivityTransitionUpdates ----------
+		requestActivityTransitionUpdates(content)
+		// requestActivityUpdates(context)
+		// ---------- END OF Changing to ActivityTransitionUpdates ----------
 	}
 
 	fun stopService(context: Context) {
@@ -65,6 +69,71 @@ class ActivityRecognitionManager: SharedPreferences.OnSharedPreferenceChangeList
 				Constants.ACTIVITY_RECOGNITION_RESULT_PREFS_NAME, Context.MODE_PRIVATE) ?: return
 		prefs.unregisterOnSharedPreferenceChangeListener(this)
 	}
+
+	/*
+	BEGIN OF MODIFICATION: Using ActivityTransitionUpdates
+	*/
+
+	@SuppressLint("MissingPermission")
+	private fun requestActivityTransitionUpdates(content: Context) {
+		val request: ActivityTransitionRequest = buildTransitionRequest()
+		pendingIntent = getPendingIntentForService(context)
+		serviceClient = ActivityRecognition.getClient(context)
+		val task = serviceClient?.requestActivityTransitionUpdates(request, pendingIntent!!)
+		task?.addOnSuccessListener { successCallback?.invoke() }
+		task?.addOnFailureListener { errorCallback?.invoke(ErrorCodes.ACTIVITY_UPDATES_REQUEST_FAILED) }
+	}
+
+	// Example Transition Request....
+    private fun buildTransitionRequest(): ActivityTransitionRequest {
+		List transitions = new ArrayList<>();
+		transitions.add(new ActivityTransition.Builder()
+		   .setActivityType(DetectedActivity.IN_VEHICLE)
+		   .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+		   .build());
+		transitions.add(new ActivityTransition.Builder()
+		   .setActivityType(DetectedActivity.IN_VEHICLE)
+		   .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+		   .build());
+		transitions.add(new ActivityTransition.Builder()
+		   .setActivityType(DetectedActivity.ON_BICYCLE)
+		   .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+		   .build());
+		transitions.add(new ActivityTransition.Builder()
+		   .setActivityType(DetectedActivity.ON_BICYCLE)
+		   .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+		   .build());
+		transitions.add(new ActivityTransition.Builder()
+		   .setActivityType(DetectedActivity.WALKING)
+		   .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+		   .build());
+		transitions.add(new ActivityTransition.Builder()
+		   .setActivityType(DetectedActivity.WALKING)
+		   .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+		   .build());
+		   transitions.add(new ActivityTransition.Builder()
+		   .setActivityType(DetectedActivity.RUNNING)
+		   .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+		   .build());
+		transitions.add(new ActivityTransition.Builder()
+		   .setActivityType(DetectedActivity.RUNNING)
+		   .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+		   .build());
+		transitions.add(new ActivityTransition.Builder()
+		   .setActivityType(DetectedActivity.STILL)
+		   .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+		   .build());
+		transitions.add(new ActivityTransition.Builder()
+		   .setActivityType(DetectedActivity.STILL)
+		   .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+		   .build());
+		return ActivityTransitionRequest(transitions);
+	  }
+
+	  /*
+	  END OF MODIFICATION: Using ActivityTransitionUpdates
+	  */
+
 
 	@SuppressLint("MissingPermission")
 	private fun requestActivityUpdates(context: Context) {
