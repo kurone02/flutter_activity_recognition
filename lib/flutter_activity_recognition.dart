@@ -4,12 +4,12 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_activity_recognition/models/activity.dart';
-import 'package:flutter_activity_recognition/models/activity_confidence.dart';
+import 'package:flutter_activity_recognition/models/activity_transition.dart';
 import 'package:flutter_activity_recognition/models/activity_type.dart';
 import 'package:flutter_activity_recognition/models/permission_request_result.dart';
 
 export 'package:flutter_activity_recognition/models/activity.dart';
-export 'package:flutter_activity_recognition/models/activity_confidence.dart';
+export 'package:flutter_activity_recognition/models/activity_transition.dart';
 export 'package:flutter_activity_recognition/models/activity_type.dart';
 export 'package:flutter_activity_recognition/models/permission_request_result.dart';
 
@@ -30,9 +30,12 @@ class FlutterActivityRecognition {
   Stream<Activity> get activityStream {
     return _eventChannel.receiveBroadcastStream().map((event) {
       final data = Map<String, dynamic>.from(jsonDecode(event));
-      final type = getActivityTypeFromString(data['type']);
-      final confidence = getActivityConfidenceFromString(data['confidence']);
-      return Activity(type, confidence);
+      final type = getActivityTypeFromString(data['activityType']);
+      final confidence =
+          getActivityTransitionFromString(data['transitionType']);
+      final timeStamp = DateTime.now();
+      print(Activity(type, confidence, timeStamp).toJson().toString());
+      return Activity(type, confidence, timeStamp);
     });
   }
 
