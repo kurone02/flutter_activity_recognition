@@ -34,7 +34,6 @@ class FlutterActivityRecognition {
       final confidence =
           getActivityTransitionFromString(data['transitionType']);
       final timeStamp = DateTime.now();
-      print(Activity(type, confidence, timeStamp).toJson().toString());
       return Activity(type, confidence, timeStamp);
     });
   }
