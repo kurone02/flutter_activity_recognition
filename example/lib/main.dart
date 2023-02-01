@@ -55,12 +55,10 @@ class _ExampleAppState extends State<ExampleApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Flutter Activity Recognition'),
-          centerTitle: true
-        ),
-        body: _buildContentView()
-      ),
+          appBar: AppBar(
+              title: const Text('Flutter Activity Recognition'),
+              centerTitle: true),
+          body: _buildContentView()),
     );
   }
 
@@ -73,21 +71,19 @@ class _ExampleAppState extends State<ExampleApp> {
 
   Widget _buildContentView() {
     return StreamBuilder<Activity>(
-      stream: _activityStreamController.stream,
-      builder: (context, snapshot) {
-        final updatedDateTime = DateTime.now();
-        final content = snapshot.data?.toJson().toString() ?? '';
+        stream: _activityStreamController.stream,
+        builder: (context, snapshot) {
+          final updatedDateTime = DateTime.now();
+          final content = snapshot.data?.toJson().toString() ?? '';
 
-        return ListView(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.all(8.0),
-          children: [
-            Text('•\t\tActivity (updated: $updatedDateTime)'),
-            SizedBox(height: 10.0),
-            Text(content)
-          ]
-        );
-      }
-    );
+          return ListView(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.all(8.0),
+              children: [
+                Text('•\t\tActivity (updated: $updatedDateTime)'),
+                SizedBox(height: 10.0),
+                Text(content)
+              ]);
+        });
   }
 }

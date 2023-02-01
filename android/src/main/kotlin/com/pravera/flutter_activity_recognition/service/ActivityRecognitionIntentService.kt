@@ -21,7 +21,7 @@ class ActivityRecognitionIntentService: JobIntentService() {
 
 	override fun onHandleWork(intent: Intent) {
 		val extractedResult = ActivityTransitionResult.extractResult(intent)
-		for (event in extractedResult.getTransitionEvents()) {
+		for (event in extractedResult!!.getTransitionEvents()) {
 			val activityType: Int = event.getActivityType()
 			val transitionType: Int = event.getTransitionType()
 
