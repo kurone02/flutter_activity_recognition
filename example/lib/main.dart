@@ -78,6 +78,7 @@ class _ExampleAppState extends State<ExampleApp> {
   void dispose() {
     _activityStreamController.close();
     _activityStreamSubscription?.cancel();
+    _sleepStreamSubscription?.cancel();
     super.dispose();
   }
 

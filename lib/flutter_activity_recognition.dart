@@ -36,7 +36,6 @@ class FlutterActivityRecognition {
   Stream<Activity> get activityStream {
     return _eventChannel.receiveBroadcastStream().map((event) {
       final data = Map<String, dynamic>.from(jsonDecode(event));
-      print(data);
       final type = getActivityTypeFromString(data['activityType']);
       final transitionType =
           getActivityTransitionFromString(data['transitionType']);
@@ -49,7 +48,6 @@ class FlutterActivityRecognition {
   Stream<Sleep> get sleepStream {
     return _eventChannelSleep.receiveBroadcastStream().map((event) {
       final data = Map<String, dynamic>.from(jsonDecode(event));
-      print(data);
       final int confidence = data['confidence'];
       final int light = data['light'];
       final int motion = data['motion'];
