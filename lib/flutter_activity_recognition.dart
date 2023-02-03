@@ -4,11 +4,13 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_activity_recognition/models/activity.dart';
+import 'package:flutter_activity_recognition/models/sleep.dart';
 import 'package:flutter_activity_recognition/models/activity_transition.dart';
 import 'package:flutter_activity_recognition/models/activity_type.dart';
 import 'package:flutter_activity_recognition/models/permission_request_result.dart';
 
 export 'package:flutter_activity_recognition/models/activity.dart';
+export 'package:flutter_activity_recognition/models/sleep.dart';
 export 'package:flutter_activity_recognition/models/activity_transition.dart';
 export 'package:flutter_activity_recognition/models/activity_type.dart';
 export 'package:flutter_activity_recognition/models/permission_request_result.dart';
@@ -26,15 +28,33 @@ class FlutterActivityRecognition {
   /// Event channel to communicate with the platform.
   final _eventChannel = EventChannel('flutter_activity_recognition/updates');
 
+  /// Event channel to communicate with the platform.
+  final _eventChannelSleep =
+      EventChannel('flutter_activity_recognition/updates_sleep');
+
   /// Gets the activity stream.
   Stream<Activity> get activityStream {
     return _eventChannel.receiveBroadcastStream().map((event) {
       final data = Map<String, dynamic>.from(jsonDecode(event));
+      print(data);
       final type = getActivityTypeFromString(data['activityType']);
-      final confidence =
+      final transitionType =
           getActivityTransitionFromString(data['transitionType']);
       final timeStamp = DateTime.now();
-      return Activity(type, confidence, timeStamp);
+      return Activity(type, transitionType, timeStamp);
+    });
+  }
+
+  /// Gets the Sleep stream.
+  Stream<Sleep> get sleepStream {
+    return _eventChannelSleep.receiveBroadcastStream().map((event) {
+      final data = Map<String, dynamic>.from(jsonDecode(event));
+      print(data);
+      final int confidence = data['confidence'];
+      final int light = data['light'];
+      final int motion = data['motion'];
+      final int timeStamp = data['timestamp'];
+      return Sleep(confidence, light, motion, timeStamp);
     });
   }
 

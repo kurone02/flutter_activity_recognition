@@ -11,10 +11,9 @@ import com.google.android.gms.location.*
 import com.pravera.flutter_activity_recognition.Constants
 import com.pravera.flutter_activity_recognition.errors.ErrorCodes
 
-class ActivityRecognitionManager: SharedPreferences.OnSharedPreferenceChangeListener {
+class SleepClassifyManager: SharedPreferences.OnSharedPreferenceChangeListener {
 	companion object {
-		const val TAG = "ActivityRecognition"
-		const val UPDATES_INTERVAL_MILLIS = 5000L
+		const val TAG = "SleepClassifyManager"
 	}
 
 	private var successCallback: (() -> Unit)? = null
@@ -28,7 +27,7 @@ class ActivityRecognitionManager: SharedPreferences.OnSharedPreferenceChangeList
 			updatesListener: ((String) -> Unit)) {
 
 		if (serviceClient != null) {
-			Log.d(TAG, "The activity recognition service has already started.")
+			Log.d(TAG, "The sleep classifier service has already started.")
 			stopService(context)
 		}
 
@@ -37,12 +36,13 @@ class ActivityRecognitionManager: SharedPreferences.OnSharedPreferenceChangeList
 		this.updatesCallback = updatesListener
 
 		registerSharedPreferenceChangeListener(context)
-		requestActivityTransitionUpdates(context)
+
+		requestSleepSegmentUpdates(context)
 	}
 
 	fun stopService(context: Context) {
 		unregisterSharedPreferenceChangeListener(context)
-		removeActivityTransitionUpdates()
+		removeSleepSegmentUpdates()
 
 		this.errorCallback = null
 		this.successCallback = null
@@ -54,7 +54,7 @@ class ActivityRecognitionManager: SharedPreferences.OnSharedPreferenceChangeList
 				Constants.ACTIVITY_RECOGNITION_RESULT_PREFS_NAME, Context.MODE_PRIVATE) ?: return
 		prefs.registerOnSharedPreferenceChangeListener(this)
 		with (prefs.edit()) {
-			remove(Constants.ACTIVITY_DATA_PREFS_KEY)
+			remove(Constants.SLEEP_DATA_PREFS_KEY)
 			remove(Constants.ACTIVITY_ERROR_PREFS_KEY)
 			commit()
 		}
@@ -67,64 +67,17 @@ class ActivityRecognitionManager: SharedPreferences.OnSharedPreferenceChangeList
 	}
 
 	@SuppressLint("MissingPermission")
-	private fun requestActivityTransitionUpdates(context: Context) {
-		val request: ActivityTransitionRequest = buildTransitionRequest()
+	private fun requestSleepSegmentUpdates(context: Context) {
 		pendingIntent = getPendingIntentForService(context)
 		serviceClient = ActivityRecognition.getClient(context)
-		val task = serviceClient?.requestActivityTransitionUpdates(request, pendingIntent!!)
+		val task = serviceClient?.requestSleepSegmentUpdates(pendingIntent!!, SleepSegmentRequest.getDefaultSleepSegmentRequest())
 		task?.addOnSuccessListener { successCallback?.invoke() }
 		task?.addOnFailureListener { errorCallback?.invoke(ErrorCodes.ACTIVITY_UPDATES_REQUEST_FAILED) }
 	}
 
-	// Example Transition Request....
-    private fun buildTransitionRequest(): ActivityTransitionRequest {
-		var transitions: MutableList<ActivityTransition> = ArrayList()
-		transitions.add(ActivityTransition.Builder()
-		   .setActivityType(DetectedActivity.IN_VEHICLE)
-		   .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
-		   .build())
-		transitions.add(ActivityTransition.Builder()
-		   .setActivityType(DetectedActivity.IN_VEHICLE)
-		   .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-		   .build())
-		transitions.add(ActivityTransition.Builder()
-		   .setActivityType(DetectedActivity.ON_BICYCLE)
-		   .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
-		   .build())
-		transitions.add(ActivityTransition.Builder()
-		   .setActivityType(DetectedActivity.ON_BICYCLE)
-		   .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-		   .build())
-		transitions.add(ActivityTransition.Builder()
-		   .setActivityType(DetectedActivity.WALKING)
-		   .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
-		   .build())
-		transitions.add(ActivityTransition.Builder()
-		   .setActivityType(DetectedActivity.WALKING)
-		   .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-		   .build())
-		   transitions.add(ActivityTransition.Builder()
-		   .setActivityType(DetectedActivity.RUNNING)
-		   .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
-		   .build())
-		transitions.add(ActivityTransition.Builder()
-		   .setActivityType(DetectedActivity.RUNNING)
-		   .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-		   .build())
-		transitions.add(ActivityTransition.Builder()
-		   .setActivityType(DetectedActivity.STILL)
-		   .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
-		   .build())
-		transitions.add(ActivityTransition.Builder()
-		   .setActivityType(DetectedActivity.STILL)
-		   .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-		   .build())
-		return ActivityTransitionRequest(transitions)
-	  }
-
-	  @SuppressLint("MissingPermission")
-	private fun removeActivityTransitionUpdates() {
-		val task = serviceClient?.removeActivityTransitionUpdates(pendingIntent!!)
+	@SuppressLint("MissingPermission")
+	private fun removeSleepSegmentUpdates() {
+		val task = serviceClient?.removeSleepSegmentUpdates(pendingIntent!!)
 		task?.addOnSuccessListener { successCallback?.invoke() }
 		task?.addOnFailureListener { errorCallback?.invoke(ErrorCodes.ACTIVITY_UPDATES_REMOVE_FAILED) }
 
@@ -143,7 +96,7 @@ class ActivityRecognitionManager: SharedPreferences.OnSharedPreferenceChangeList
 
 	override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
 		when (key) {
-			Constants.ACTIVITY_DATA_PREFS_KEY -> {
+			Constants.SLEEP_DATA_PREFS_KEY -> {
 				val data = sharedPreferences.getString(key, null) ?: return
 				updatesCallback?.invoke(data)
 			}

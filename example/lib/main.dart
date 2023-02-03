@@ -13,21 +13,28 @@ class ExampleApp extends StatefulWidget {
 
 class _ExampleAppState extends State<ExampleApp> {
   final _activityStreamController = StreamController<Activity>();
+  final _sleepStreamController = StreamController<Sleep>();
   StreamSubscription<Activity>? _activityStreamSubscription;
+  StreamSubscription<Sleep>? _sleepStreamSubscription;
 
   void _onActivityReceive(Activity activity) {
-    dev.log('Activity Detected >> ${activity.toJson()}');
+    print('Activity Detected >> ${activity.toJson()}');
     _activityStreamController.sink.add(activity);
   }
 
+  void _onSleepReceive(Sleep event) {
+    print('Sleep event >> ${event.toJson()}');
+    _sleepStreamController.sink.add(event);
+  }
+
   void _handleError(dynamic error) {
-    dev.log('Catch Error >> $error');
+    print('Catch Error >> $error');
   }
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final activityRecognition = FlutterActivityRecognition.instance;
 
       // Check if the user has granted permission. If not, request permission.
@@ -48,6 +55,11 @@ class _ExampleAppState extends State<ExampleApp> {
       _activityStreamSubscription = activityRecognition.activityStream
           .handleError(_handleError)
           .listen(_onActivityReceive);
+
+      // Subscribe to the sleep stream.
+      _sleepStreamSubscription = activityRecognition.sleepStream
+          .handleError(_handleError)
+          .listen(_onSleepReceive);
     });
   }
 
